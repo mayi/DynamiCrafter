@@ -7,3 +7,5 @@ __pycache__
 checkpoints
 results
 backup
+tmp
+open_clip_models

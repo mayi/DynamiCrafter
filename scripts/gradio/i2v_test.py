@@ -34,7 +34,7 @@ class Image2Video():
         self.model_list = model_list
         self.save_fps = 8
 
-    def get_image(self, image, prompt, steps=50, cfg_scale=7.5, eta=1.0, fs=3, seed=123):
+    def get_image(self, image, prompt, steps=50, cfg_scale=7.5, eta=1.0, fs=3, seed=123, save_name=None):
         seed_everything(seed)
         transform = transforms.Compose([
             transforms.Resize(min(self.resolution)),
@@ -85,11 +85,13 @@ class Image2Video():
             prompt_str=prompt_str[:40]
             if len(prompt_str) == 0:
                 prompt_str = 'empty_prompt'
-
-        save_videos(batch_samples, self.result_dir, filenames=[prompt_str], fps=self.save_fps)
-        print(f"Saved in {prompt_str}. Time used: {(time.time() - start):.2f} seconds")
+        
+        if save_name is None:
+            save_name = prompt_str
+        save_videos(batch_samples, self.result_dir, filenames=[save_name], fps=self.save_fps)
+        print(f"Saved in {save_name}. Time used: {(time.time() - start):.2f} seconds")
         model = model.cpu()
-        return os.path.join(self.result_dir, f"{prompt_str}.mp4")
+        return os.path.join(self.result_dir, f"{save_name}.mp4")
     
     def download_model(self):
         REPO_ID = 'Doubiiu/DynamiCrafter_'+str(self.resolution[1]) if self.resolution[1]!=256 else 'Doubiiu/DynamiCrafter'
