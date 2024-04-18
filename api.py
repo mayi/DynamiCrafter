@@ -36,9 +36,9 @@ class DynamiCrafterAPI:
             raise NotImplementedError(f"Unsupported resolution: {res}")
         self.image2video = Image2Video(self.result_dir, resolution=self.resolution)
     
-    def run(self, image_path, i2v_input_text, i2v_steps=50, i2v_cfg_scale=7.5, i2v_eta=1.0, i2v_motion=15, i2v_seed=123):
+    def run(self, image_path, i2v_input_text, i2v_steps=50, i2v_cfg_scale=7.5, i2v_eta=1.0, i2v_motion=15, i2v_seed=123, frames=None):
         i2v_input_image_array = np.array(Image.open(image_path))
-        i2v_output_video = self.image2video.get_image(i2v_input_image_array, i2v_input_text, i2v_steps, i2v_cfg_scale, i2v_eta, i2v_motion, i2v_seed, save_name=str(uuid.uuid4()))
+        i2v_output_video = self.image2video.get_image(i2v_input_image_array, i2v_input_text, i2v_steps, i2v_cfg_scale, i2v_eta, i2v_motion, i2v_seed, save_name=str(uuid.uuid4()), frames=None)
         return i2v_output_video
 
 app = FastAPI()
@@ -53,6 +53,7 @@ class GenerateRequest(BaseModel):
     i2v_eta: float = 1.0
     i2v_motion: int = 15
     i2v_seed: int = 123
+    frames: int = None
 
 @app.post("/upload")
 async def upload(file: UploadFile = File(...)):
@@ -65,6 +66,6 @@ async def upload(file: UploadFile = File(...)):
 @app.post("/generate")
 async def generate(request: GenerateRequest):
     print(f"Generating video for {request.image_name}")
-    result = dynamiCrafterAPI.run(os.path.join(dynamiCrafterAPI.upload_dir, request.image_name), request.i2v_input_text, request.i2v_steps, request.i2v_cfg_scale, request.i2v_eta, request.i2v_motion, request.i2v_seed)
+    result = dynamiCrafterAPI.run(os.path.join(dynamiCrafterAPI.upload_dir, request.image_name), request.i2v_input_text, request.i2v_steps, request.i2v_cfg_scale, request.i2v_eta, request.i2v_motion, request.i2v_seed, request.frames)
     print(f"Video generated for {request.image_name}")
     return FileResponse(result)

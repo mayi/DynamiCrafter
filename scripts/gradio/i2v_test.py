@@ -34,7 +34,7 @@ class Image2Video():
         self.model_list = model_list
         self.save_fps = 8
 
-    def get_image(self, image, prompt, steps=50, cfg_scale=7.5, eta=1.0, fs=3, seed=123, save_name=None):
+    def get_image(self, image, prompt, steps=50, cfg_scale=7.5, eta=1.0, fs=3, seed=123, save_name=None, frames=None):
         seed_everything(seed)
         transform = transforms.Compose([
             transforms.Resize(min(self.resolution)),
@@ -50,7 +50,8 @@ class Image2Video():
         model = model.cuda()
         batch_size=1
         channels = model.model.diffusion_model.out_channels
-        frames = model.temporal_length
+        if frames is None:
+            frames = model.temporal_length
         h, w = self.resolution[0] // 8, self.resolution[1] // 8
         noise_shape = [batch_size, channels, frames, h, w]
 
